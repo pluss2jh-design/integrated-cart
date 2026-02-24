@@ -29,9 +29,15 @@ function App() {
             const recipeData = await res.json();
             setRecipe(recipeData);
 
-            // 2. 임시 하드코딩된 재료 검색 호출 (단순 시뮬레이션 용도)
-            // 실제로는 추출된 JSON(ingredientsJson)을 파싱하여 여러 번 호출 혹은 bulk 호출 해야 함.
-            handleSearch("양파", 100, false);
+            // 2. 추출된 재료 중 첫 번째 재료로 자동 검색 (데모용)
+            if (recipeData.ingredientsJson) {
+                const ingredients = JSON.parse(recipeData.ingredientsJson);
+                if (ingredients.length > 0) {
+                    handleSearch(ingredients[0].name, ingredients[0].amount, false);
+                }
+            } else {
+                handleSearch("양파", 100, false);
+            }
 
         } catch (error) {
             console.error(error);
@@ -41,14 +47,24 @@ function App() {
         }
     };
 
+    const [searchError, setSearchError] = useState(false);
+
     const handleSearch = async (keyword, amount, isLowSugar) => {
+        setSearchError(false);
         try {
             const res = await fetch(`${API_BASE}/ingredients/search?keyword=${keyword}&requiredAmount=${amount}&lowSugar=${isLowSugar}`);
             if (!res.ok) throw new Error("검색 실패");
             const searchResults = await res.json();
+
+            // 모든 몰의 결과가 비어있는지 확인
+            const isEmpty = Object.values(searchResults).every(arr => arr.length === 0);
+            if (isEmpty) {
+                setSearchError(true);
+            }
             setProducts(searchResults);
         } catch (e) {
             console.error("검색 오류", e);
+            setSearchError(true);
         }
     };
 
@@ -92,7 +108,14 @@ function App() {
                     </div>
                 )}
 
-                {products && (
+                {searchError && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-xl text-center">
+                        <p className="font-bold text-lg">⚠️ 재료 검색에 실패했습니다.</p>
+                        <p className="text-sm mt-1">마트 검색 결과가 없거나 일시적인 오류입니다. 다른 키워드로 시도해보세요.</p>
+                    </div>
+                )}
+
+                {products && !searchError && (
                     <ResultList productsByMall={products} onAddToCart={addToCart} />
                 )}
             </main>

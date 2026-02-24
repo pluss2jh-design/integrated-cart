@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class KurlyMallStrategy implements MallStrategy {
 
-    private final ProductRepository productRepository;
+    private final RealMartScraperService realMartScraperService;
 
     @Override
     public MallType getMallType() {
@@ -24,18 +24,7 @@ public class KurlyMallStrategy implements MallStrategy {
 
     @Override
     public List<Product> searchProducts(String keyword, double targetAmount, boolean isLowSugar) {
-        log.info("Searching products in KURLY for keyword: {}, lowSugar: {}", keyword, isLowSugar);
-        
-        List<Product> products;
-        if (isLowSugar) {
-            products = productRepository.findByNameContainingOrderBySugarAsc(keyword);
-        } else {
-            products = productRepository.findByNameContainingAndInStockTrueOrderByPriceAsc(keyword);
-        }
-
-        // 컬리몰 상품만 필터링
-        return products.stream()
-                .filter(p -> p.getMallType() == MallType.KURLY)
-                .collect(Collectors.toList());
+        log.info("Searching REAL products in KURLY for keyword: {}", keyword);
+        return realMartScraperService.scrapeKurly(keyword);
     }
 }

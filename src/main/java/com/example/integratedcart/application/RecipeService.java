@@ -12,26 +12,33 @@ import org.springframework.stereotype.Service;
 public class RecipeService {
 
     private final RecipeRepository recipeRepository;
-    // 향후 Gemini API 설정을 주입받을 클라이언트 (현재는 Mock 처리)
-    // private final GeminiClient geminiClient;
 
     /**
-     * 영상 URL이나 음식명을 입력받아 Gemini API를 통해 레시피 정보를 추출하고 저장합니다.
+     * 영상 URL이나 음식명을 입력받아 레시피 정보를 추출하고 저장합니다.
      * @param input URL 또는 음식명
      * @return 저장된 Recipe 엔티티
      */
     public Recipe extractAndSaveRecipe(String input) {
         log.info("Extracting recipe for input: {}", input);
         
-        // TODO: 실제 Gemini API 연동 (Mock Data로 대체)
-        String mockIngredientsJson = "[{\"name\":\"양파\", \"amount\": 100, \"unit\":\"g\"}, {\"name\":\"소고기\", \"amount\": 200, \"unit\":\"g\"}]";
-        Integer mockBasePortion = 2; // 기준 인분 (2인분)
-        String mockRecipeName = input.startsWith("http") ? "추출된 레시피" : input;
+        String ingredientsJson;
+        String recipeName = input.startsWith("http") ? "추출된 레시피" : input;
+        Integer basePortion = 1;
+
+        // 단순 식재료 입력인지 확인 (공백이 없고 URL이 아니며 짧은 경우)
+        if (!input.startsWith("http") && !input.contains(" ") && input.length() < 10) {
+            log.info("Single ingredient detected: {}", input);
+            ingredientsJson = String.format("[{\"name\":\"%s\", \"amount\": 1, \"unit\":\"개\"}]", input);
+        } else {
+            // 레시피명이나 URL인 경우 (Mock Data)
+            ingredientsJson = "[{\"name\":\"양파\", \"amount\": 100, \"unit\":\"g\"}, {\"name\":\"소고기\", \"amount\": 200, \"unit\":\"g\"}]";
+            basePortion = 2;
+        }
 
         Recipe recipe = Recipe.builder()
-                .name(mockRecipeName)
-                .ingredientsJson(mockIngredientsJson)
-                .basePortion(mockBasePortion)
+                .name(recipeName)
+                .ingredientsJson(ingredientsJson)
+                .basePortion(basePortion)
                 .build();
 
         return recipeRepository.save(recipe);

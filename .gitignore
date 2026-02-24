@@ -1,0 +1,55 @@
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+
+### Eclipse ###
+.settings/
+.classpath
+.project
+.metadata
+bin/
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Node / Frontend ###
+node_modules/
+dist/
+dist-ssr/
+*.local
+.env
+.env.*
+!.env.example
+integrated-cart-frontend/node_modules/
+integrated-cart-frontend/dist/
+
+### Logs ###
+*.log
+spring_log*.txt
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### Project Specific ###
+gradle.zip
+jdk-17.zip
+gradlew
+gradlew.bat
+gradle/

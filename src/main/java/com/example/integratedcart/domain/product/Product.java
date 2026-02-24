@@ -40,7 +40,8 @@ public class Product {
     private Boolean inStock;
 
     @Builder
-    public Product(String name, Integer price, MallType mallType, Double sugarPer100g, String unit, Integer capacity, Boolean inStock) {
+    public Product(Long id, String name, Integer price, MallType mallType, Double sugarPer100g, String unit, Integer capacity, Boolean inStock) {
+        this.id = id;
         this.name = name;
         this.price = price;
         this.mallType = mallType;
