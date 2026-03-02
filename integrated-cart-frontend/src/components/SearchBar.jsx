@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 /**
  * 레시피 분석을 위한 검색바 컴포넌트.
@@ -12,35 +12,56 @@ export default function SearchBar({ onAnalyze, isLoading }) {
     const [inputUrl, setInputUrl] = useState('');
     const [portion, setPortion] = useState(1);
     const [malls, setMalls] = useState(['ALL']);
-    const [selectedModel, setSelectedModel] = useState('gemini-1.5-flash');
-    const [models, setModels] = useState([]);
+    const [selectedModel, setSelectedModel] = useState('');
+    const [allModels, setAllModels] = useState([]);
 
     useEffect(() => {
         const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
         fetch(`${API_BASE}/ai/models`)
             .then(res => {
-                if (!res.ok) throw new Error("API Not Found");
-                return res.json();
-            })
-        fetch('http://localhost:8080/api/v1/ai/models')
-            .then(res => {
-                if (!res.ok) throw new Error("API Not Found");
+                if (!res.ok) throw new Error("모델 리스트를 불러올 수 없습니다.");
                 return res.json();
             })
             .then(data => {
-                if (Array.isArray(data) && data.length > 0) {
-                    setModels(data);
-                } else {
-                    setModels(['gemini-1.5-flash', 'gemini-pro']);
+                setAllModels(data);
+                if (data.length > 0) {
+                    const defaultModel = data.find(m => m.name.includes('flash')) || data[0];
+                    setSelectedModel(defaultModel.name);
                 }
             })
-            .catch(() => setModels(['gemini-1.5-flash', 'gemini-pro']));
+            .catch(() => {
+                const fallbackModels = [
+                    { name: 'gemini-1.5-flash', displayName: 'Gemini 1.5 Flash (Fallback)', supportedGenerationMethods: ['generateContent'], inputTokenLimit: 1000000 },
+                    { name: 'gemini-1.5-pro', displayName: 'Gemini 1.5 Pro (Fallback)', supportedGenerationMethods: ['generateContent'], inputTokenLimit: 2000000 }
+                ];
+                setAllModels(fallbackModels);
+                setSelectedModel('gemini-1.5-flash');
+            });
     }, []);
-        fetch('http://localhost:8080/api/v1/ai/models')
-            .then(res => res.json())
-            .then(data => setModels(data))
-            .catch(() => setModels(['gemini-1.5-flash', 'gemini-pro']));
-    }, []);
+
+    const filteredModels = useMemo(() => {
+        const isUrl = inputUrl.trim().startsWith('http');
+        return allModels.filter(model => {
+            const methods = model.supportedGenerationMethods || [];
+            if (!methods.includes('generateContent')) return false;
+
+            if (isUrl) {
+                // 멀티모달 모드: 토큰 제한이 크거나 1.5/pro 시리즈인 경우
+                return (model.inputTokenLimit >= 1000000) || 
+                       model.name.includes('1.5') || 
+                       model.name.includes('pro') || 
+                       model.name.includes('flash');
+            } else {
+                return true;
+            }
+        });
+    }, [allModels, inputUrl]);
+
+    useEffect(() => {
+        if (filteredModels.length > 0 && !filteredModels.find(m => m.name === selectedModel)) {
+            setSelectedModel(filteredModels[0].name);
+        }
+    }, [filteredModels, selectedModel]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -93,13 +114,22 @@ export default function SearchBar({ onAnalyze, isLoading }) {
                 <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between p-4 bg-gray-50 rounded-xl">
                     <div className="flex items-center gap-4">
                         <span className="text-sm font-bold text-gray-600">AI 모델:</span>
-                        <select 
-                            value={selectedModel} 
+                        <select
+                            value={selectedModel}
                             onChange={(e) => setSelectedModel(e.target.value)}
-                            className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-200 transition-all"
+                            className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-200 transition-all min-w-[200px]"
                         >
-                            {models.map(m => <option key={m} value={m}>{m}</option>)}
+                            {filteredModels.length > 0 ? (
+                                filteredModels.map(m => (
+                                    <option key={m.name} value={m.name}>{m.displayName || m.name}</option>
+                                ))
+                            ) : (
+                                <option disabled>사용 가능한 모델 없음</option>
+                            )}
                         </select>
+                        {inputUrl.trim().startsWith('http') && (
+                            <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold uppercase">Multimodal Mode</span>
+                        )}
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -141,18 +171,6 @@ export default function SearchBar({ onAnalyze, isLoading }) {
                     </div>
                 </div>
             </form>
-
-            <div className="flex flex-wrap justify-center gap-3">
-                <span className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold flex items-center gap-1">
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full"></span> 실시간 최저가 반영
-                </span>
-                <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-xs font-bold flex items-center gap-1">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span> 정밀 레시피 분석
-                </span>
-                <span className="px-4 py-2 bg-purple-50 text-purple-700 rounded-full text-xs font-bold flex items-center gap-1">
-                    <span className="w-2 h-2 bg-purple-500 rounded-full"></span> 앱 전용 마켓 우회 지원
-                </span>
-            </div>
         </div>
     );
 }

@@ -1,0 +1,31 @@
+{
+    "manifest_version": 3,
+    "name": "Integrated Cart Helper",
+    "version": "1.0",
+    "description": "Bypass 403 and access app-only malls for Integrated Cart.",
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "storage",
+        "webRequest",
+        "declarativeNetRequest"
+    ],
+    "host_permissions": [
+        "https://*.coupang.com/*",
+        "https://*.baemin.com/*",
+        "https://*.kurly.com/*"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "http://localhost:5173/*"
+            ],
+            "js": [
+                "content.js"
+            ]
+        }
+    ]
+}
