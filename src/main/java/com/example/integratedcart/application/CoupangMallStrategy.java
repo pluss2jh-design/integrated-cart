@@ -24,7 +24,7 @@ public class CoupangMallStrategy implements MallStrategy {
 
     @Override
     public List<Product> searchProducts(String keyword, double targetAmount, boolean isLowSugar) {
-        log.info("Searching REAL products in COUPANG for keyword: {}", keyword);
+        log.info("쿠팬 실제 상품 검색 중, 키워드: {}", keyword);
         return realMartScraperService.scrapeCoupang(keyword);
     }
 }

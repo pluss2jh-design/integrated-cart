@@ -24,7 +24,7 @@ public class KurlyMallStrategy implements MallStrategy {
 
     @Override
     public List<Product> searchProducts(String keyword, double targetAmount, boolean isLowSugar) {
-        log.info("Searching REAL products in KURLY for keyword: {}", keyword);
+        log.info("컴리 실제 상품 검색 중, 키워드: {}", keyword);
         return realMartScraperService.scrapeKurly(keyword);
     }
 }

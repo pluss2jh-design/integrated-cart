@@ -16,11 +16,11 @@ public class QuantityScalingService {
      */
     public double calculateTargetAmount(double originalAmount, int basePortion, int targetPortion) {
         if (basePortion <= 0 || targetPortion <= 0) {
-            throw new IllegalArgumentException("Portion must be greater than 0");
+            throw new IllegalArgumentException("인분 수는 0보다 커야 합니다.");
         }
         
         double requiredAmount = (originalAmount / basePortion) * targetPortion;
-        log.info("Scaled amount: {} -> {} (base: {}, target: {})", originalAmount, requiredAmount, basePortion, targetPortion);
+        log.info("조정된 양: {} -> {} (기준 인분: {}, 목표 인분: {})", originalAmount, requiredAmount, basePortion, targetPortion);
         return requiredAmount;
     }
 
@@ -32,11 +32,11 @@ public class QuantityScalingService {
      */
     public int calculatePurchaseQuantity(double requiredAmount, int productCapacity) {
         if (productCapacity <= 0) {
-            throw new IllegalArgumentException("Product capacity must be greater than 0");
+            throw new IllegalArgumentException("상품 용량은 0보다 커야 합니다.");
         }
         
         int quantity = (int) Math.ceil(requiredAmount / productCapacity);
-        log.info("Required: {}, Capacity: {}, Purchase Quantity: {}", requiredAmount, productCapacity, quantity);
+        log.info("필요 양: {}, 용량: {}, 구매 수량: {}", requiredAmount, productCapacity, quantity);
         return quantity;
     }
 }

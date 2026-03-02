@@ -31,16 +31,20 @@ public class Product {
     private Double sugarPer100g;
 
     @Column(nullable = false)
-    private String unit; // e.g., "g", "ml", "개"
+    private String unit; // 단위 (예: "g", "ml", "개")
 
     @Column(nullable = false)
-    private Integer capacity; // 용량 숫자 (예: unit이 g이고 capacity가 500이면 500g)
+    private Integer capacity; // 용량 숫자 (예: unit이 "g"이고 capacity가 500이면 500g 상품)
 
     @Column(nullable = false)
     private Boolean inStock;
 
+    @Column(length = 2048)
+    private String productUrl;
+
     @Builder
-    public Product(Long id, String name, Integer price, MallType mallType, Double sugarPer100g, String unit, Integer capacity, Boolean inStock) {
+    public Product(Long id, String name, Integer price, MallType mallType, Double sugarPer100g, String unit,
+            Integer capacity, Boolean inStock, String productUrl) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -49,6 +53,7 @@ public class Product {
         this.unit = unit;
         this.capacity = capacity;
         this.inStock = inStock != null ? inStock : true;
+        this.productUrl = productUrl;
     }
 
     public void updateStock(Boolean inStock) {

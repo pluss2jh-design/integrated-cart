@@ -8,6 +8,7 @@ public class ApiDto {
     @Data
     public static class AnalyzeRequest {
         private String input; // 영상 URL 또는 음식명
+        private String modelName; // Gemini 모델명
     }
 
     @Data

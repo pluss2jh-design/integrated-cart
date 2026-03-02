@@ -19,7 +19,7 @@ public class Recipe {
     @Column(nullable = false)
     private String name;
 
-    // JSON 형식 보관을 위해 String 도는 특정 JSON 타입을 사용할 수 있습니다. 여기서는 단순히 String으로 처리합니다.
+    // JSON 형식으로 저장하며, String 또는 별도 JSON 타입을 사용할 수 있음
     @Column(name = "ingredients_json", columnDefinition = "TEXT", nullable = false)
     private String ingredientsJson;
 
